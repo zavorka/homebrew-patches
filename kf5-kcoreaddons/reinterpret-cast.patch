@@ -1,0 +1,41 @@
+diff --git a/src/lib/plugin/kpluginfactory.h b/src/lib/plugin/kpluginfactory.h
+index d2ffbdd..c024d23 100644
+--- a/src/lib/plugin/kpluginfactory.h
++++ b/src/lib/plugin/kpluginfactory.h
+@@ -471,7 +471,7 @@ protected:
+         Q_UNUSED(parentWidget);
+         ParentType *p = 0;
+         if (parent) {
+-            p = qobject_cast<ParentType *>(parent);
++            p = reinterpret_cast<ParentType *>(parent);
+             Q_ASSERT(p);
+         }
+         return new impl(p, args);
+@@ -494,7 +494,7 @@ inline T *KPluginFactory::create(QObject *parent, const QVariantList &args)
+ {
+     QObject *o = create(T::staticMetaObject.className(), parent && parent->isWidgetType() ? reinterpret_cast<QWidget *>(parent) : 0, parent, args, QString());
+
+-    T *t = qobject_cast<T *>(o);
++    T *t = reinterpret_cast<T *>(o);
+     if (!t) {
+         delete o;
+     }
+@@ -506,7 +506,7 @@ inline T *KPluginFactory::create(const QString &keyword, QObject *parent, const
+ {
+     QObject *o = create(T::staticMetaObject.className(), parent && parent->isWidgetType() ? reinterpret_cast<QWidget *>(parent) : 0, parent, args, keyword);
+
+-    T *t = qobject_cast<T *>(o);
++    T *t = reinterpret_cast<T *>(o);
+     if (!t) {
+         delete o;
+     }
+@@ -518,7 +518,7 @@ inline T *KPluginFactory::create(QWidget *parentWidget, QObject *parent, const Q
+ {
+     QObject *o = create(T::staticMetaObject.className(), parentWidget, parent, args, keyword);
+
+-    T *t = qobject_cast<T *>(o);
++    T *t = reinterpret_cast<T *>(o);
+     if (!t) {
+         delete o;
+     }
+
