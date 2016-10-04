@@ -1,0 +1,37 @@
+diff --git a/modules/access/avcapture.m b/modules/access/avcapture.m
+index a7f1040..b492a0b 100644
+--- a/modules/access/avcapture.m
++++ b/modules/access/avcapture.m
+@@ -285,7 +285,10 @@ static int Open(vlc_object_t *p_this)
+                 _("Your Mac does not seem to be equipped with a suitable video input device. "
+                 "Please check your connectors and drivers."));
+             msg_Err(p_demux, "Can't find any suitable video device");
+-            goto error;
++            msg_Err(p_demux, "Error");
++            input = nil;
++            free(p_sys);
++            return VLC_EGENERIC;
+         }
+
+         deviceCount = [myVideoDevices count];
+@@ -314,13 +317,19 @@ static int Open(vlc_object_t *p_this)
+                 _("Your Mac does not seem to be equipped with a suitable input device. "
+                 "Please check your connectors and drivers."));
+             msg_Err(p_demux, "Can't find any suitable video device");
+-            goto error;
++            msg_Err(p_demux, "Error");
++            input = nil;
++            free(p_sys);
++            return VLC_EGENERIC;
+         }
+
+         if ( [(__bridge AVCaptureDevice *)p_sys->device isInUseByAnotherApplication] == YES )
+         {
+             msg_Err(p_demux, "default capture device is exclusively in use by another application");
+-            goto error;
++            msg_Err(p_demux, "Error");
++            input = nil;
++            free(p_sys);
++            return VLC_EGENERIC;
+         }
+
