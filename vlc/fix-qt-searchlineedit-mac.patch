@@ -1,0 +1,14 @@
+diff --git a/modules/gui/qt/Makefile.am b/modules/gui/qt/Makefile.am
+index 8546529..c006705 100644
+--- a/modules/gui/qt/Makefile.am
++++ b/modules/gui/qt/Makefile.am
+@@ -118,6 +118,9 @@ libqt_plugin_la_SOURCES = \
+ if HAVE_WIN32
+ libqt_plugin_la_SOURCES += main_interface_win32.cpp
+ endif
++if HAVE_DARWIN
++libqt_plugin_la_SOURCES += util/searchlineedit_mac.mm
++endif
+
+ # Meta-object compilation
+
