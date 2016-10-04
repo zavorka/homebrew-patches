@@ -1,16 +1,24 @@
 diff --git a/contrib/src/main.mak b/contrib/src/main.mak
-index 9042227..5099922 100644
+index 9042227..b9c69f7 100644
 --- a/contrib/src/main.mak
 +++ b/contrib/src/main.mak
-@@ -106,8 +106,8 @@ endif
+@@ -106,12 +106,12 @@ endif
 
  ifdef HAVE_MACOSX
  MIN_OSX_VERSION=10.7
 -CC=xcrun cc
 -CXX=xcrun c++
-+CC=xcrun clang
-+CXX=xcrun clang++
- AR=xcrun ar
- LD=xcrun ld
- STRIP=xcrun strip
+-AR=xcrun ar
+-LD=xcrun ld
+-STRIP=xcrun strip
+-RANLIB=xcrun ranlib
++CC=clang
++CXX=clang++
++AR=ar
++LD=ld
++STRIP=strip
++RANLIB=ranlib
+ EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+ EXTRA_CXXFLAGS += -stdlib=libc++
+ EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
 
