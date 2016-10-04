@@ -35,3 +35,40 @@ index a7f1040..b492a0b 100644
 +            return VLC_EGENERIC;
          }
 
+         input = [AVCaptureDeviceInput deviceInputWithDevice:(__bridge AVCaptureDevice *)p_sys->device error:&o_returnedError];
+@@ -328,7 +337,10 @@ static int Open(vlc_object_t *p_this)
+         if ( !input )
+         {
+             msg_Err(p_demux, "can't create a valid capture input facility (%ld)", [o_returnedError code]);
+-            goto error;
++            msg_Err(p_demux, "Error");
++            input = nil;
++            free(p_sys);
++            return VLC_EGENERIC;
+         }
+
+         int chroma = VLC_CODEC_RGB32;
+@@ -344,7 +356,9 @@ static int Open(vlc_object_t *p_this)
+
+         dispatch_queue_t queue = dispatch_queue_create("avCaptureQueue", NULL);
+         [(__bridge VLCAVDecompressedVideoOutput *)p_sys->output setSampleBufferDelegate:(__bridge id)p_sys->output queue:queue];
++#if OS_OBJECT_HAVE_OBJC_SUPPORT == 0
+         dispatch_release(queue);
++#endif
+
+         [(__bridge VLCAVDecompressedVideoOutput *)p_sys->output setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+         [(__bridge AVCaptureSession *)p_sys->session startRunning];
+@@ -354,13 +368,6 @@ static int Open(vlc_object_t *p_this)
+         msg_Dbg(p_demux, "AVCapture: Video device ready!");
+
+         return VLC_SUCCESS;
+-    error:
+-        msg_Err(p_demux, "Error");
+-        input = nil;
+-
+-        free(p_sys);
+-
+-        return VLC_EGENERIC;
+     }
+ }
+
