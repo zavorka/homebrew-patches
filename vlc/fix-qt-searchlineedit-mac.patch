@@ -1,8 +1,62 @@
+diff --git a/configure.ac b/configure.ac
+index 8080e76..87a01fb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -61,7 +61,9 @@ AM_PROG_CC_C_O
+ AC_PROG_CXX
+ AC_PROG_CPP
+ AC_PROG_OBJC
++AC_PROG_OBJCXX
+ _AM_DEPENDENCIES([OBJC])
++_AM_DEPENDENCIES([OBJCXX])
+ AC_PROG_EGREP
+ AC_PROG_MAKE_SET
+ AC_PROG_INSTALL
+@@ -156,9 +158,11 @@ case "${host_os}" in
+     SYS=darwin
+     CFLAGS="${CFLAGS} -D_INTL_REDIRECT_MACROS -std=gnu11 ${ARCH_flag}"
+     CXX="${CXX} -stdlib=libc++ -std=c++11"
++    OBJCXX="${CXX}"
+     CXXFLAGS="${CXXFLAGS} -D_INTL_REDIRECT_MACROS ${ARCH_flag}"
+     CPPFLAGS="${CPPFLAGS} ${ARCH_flag}"
+     OBJCFLAGS="${OBJCFLAGS} -D_INTL_REDIRECT_MACROS -std=gnu11 ${ARCH_flag}"
++    OBJCXXFLAGS="${OBJCXXFLAGS} -D_INTL_REDIRECT_MACROS ${ARCH_flag}"
+     LDFLAGS="${LDFLAGS} -Wl,-headerpad_max_install_names ${ARCH_flag}"
+     VLC_ADD_LIBS([libvlc vlc],[-Wl,-undefined,dynamic_lookup,-framework,AppKit])
+     VLC_ADD_LIBS([libvlccore],[-Wl,-framework,CoreFoundation,-framework,CoreServices])
+@@ -204,6 +208,7 @@ case "${host_os}" in
+         CC="${CC} -isysroot ${with_macosx_sdk}"
+         CXX="${CXX} -isysroot ${with_macosx_sdk}"
+         OBJC="${OBJC} -isysroot ${with_macosx_sdk}"
++        OBJCXX="${OBJCXX} -isysroot ${with_macosx_sdk}"
+         LD="${LD} -syslibroot ${with_macosx_sdk}"
+     fi
+     AC_ARG_WITH(macosx-version-min,
+@@ -214,6 +219,7 @@ case "${host_os}" in
+         CC="${CC} -mmacosx-version-min=${with_macosx_version_min}"
+         CXX="${CXX} -mmacosx-version-min=${with_macosx_version_min}"
+         OBJC="${OBJC} -mmacosx-version-min=${with_macosx_version_min}"
++        OBJCXX="${OBJCXX} -mmacosx-version-min=${with_macosx_version_min}"
+         LD="${LD} -mmacosx_version_min=${with_macosx_version_min}"
+     fi
+     ;;diff --git a/modules/gui/qt/Makefile.am b/modules/gui/qt/Makefile.am
 diff --git a/modules/gui/qt/Makefile.am b/modules/gui/qt/Makefile.am
-index 8546529..c006705 100644
+index 8546529..f232d75 100644
 --- a/modules/gui/qt/Makefile.am
 +++ b/modules/gui/qt/Makefile.am
-@@ -118,6 +118,9 @@ libqt_plugin_la_SOURCES = \
+@@ -12,9 +12,10 @@ guidir = $(pluginsdir)/gui
+ # For each ressource (icon, png, ...)
+ #   - Add it to DEPS_res
+
+-SUFFIXES += .ui .h .hpp .moc.cpp
++SUFFIXES += .ui .h .hpp .moc.cpp .mm
+
+ libqt_plugin_la_CXXFLAGS = $(AM_CXXFLAGS) $(QT_CFLAGS) $(CXXFLAGS_qt)
++libqt_plugin_la_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_CFLAGS) $(CXXFLAGS_qt)
+ libqt_plugin_la_LIBADD = $(QT_LIBS) $(LIBS_qt) $(LIBM)
+ libqt_plugin_la_LDFLAGS = $(AM_LDFLAGS) -rpath '$(guidir)'
+ if HAVE_OS2
+@@ -118,6 +119,9 @@ libqt_plugin_la_SOURCES = \
  if HAVE_WIN32
  libqt_plugin_la_SOURCES += main_interface_win32.cpp
  endif
@@ -11,4 +65,5 @@ index 8546529..c006705 100644
 +endif
 
  # Meta-object compilation
+
 
