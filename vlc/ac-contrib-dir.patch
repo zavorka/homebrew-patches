@@ -1,0 +1,22 @@
+diff --git a/configure.ac b/configure.ac
+index 8080e76..47ba9aa 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -418,15 +418,9 @@ AS_IF([test -z "${with_contrib}" || test "${with_contrib}" = "yes"], [
+   ])
+ ])
+ AS_IF([test -n "${CONTRIB_DIR}"], [
+-  AS_IF([test -d "${CONTRIB_DIR}/lib"],[
+     CONTRIB_DIR=`cd "${CONTRIB_DIR}" && pwd`
+-  ], [
+-    echo "${CONTRIB_DIR}/lib not found" >&AS_MESSAGE_LOG_FD
+-    CONTRIB_DIR=""
+-    AC_MSG_RESULT([not usable])
+-  ])
+-
+ ])
++
+ AS_IF([test -n "${CONTRIB_DIR}"], [
+   AC_MSG_RESULT([${CONTRIB_DIR}])
+   CPPFLAGS="${CPPFLAGS} -I${CONTRIB_DIR}/include"
+
