@@ -1,0 +1,149 @@
+diff --git a/src/backend.cpp b/src/backend.cpp
+index b59ad34..b1ab350 100644
+--- a/src/backend.cpp
++++ b/src/backend.cpp
+@@ -96,7 +96,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
+                         qApp->applicationVersion(),
+                         PHONON_VERSION_STR,
+                         PHONON_VLC_VERSION);
+-            libvlc_set_user_agent(libvlc,
++            libvlc_set_user_agent(vlc_self,
+                                   qApp->applicationName().toUtf8().constData(),
+                                   userAgent.toUtf8().constData());
+         } else {
+@@ -121,7 +121,7 @@ Backend::Backend(QObject *parent, const QVariantList &)
+                 // If we failed to get a proper icon name, use the appname instead.
+                 icon = qApp->applicationName().toLower();
+             }
+-            libvlc_set_app_id(libvlc,
++            libvlc_set_app_id(vlc_self,
+                               id.toUtf8().constData(),
+                               version.toUtf8().constData(),
+                               icon.toUtf8().constData());
+@@ -176,7 +176,7 @@ Backend::~Backend()
+ 
+ QObject *Backend::createObject(BackendInterface::Class c, QObject *parent, const QList<QVariant> &args)
+ {
+-    if (!LibVLC::self || !libvlc)
++    if (!LibVLC::self || !vlc_self)
+         return 0;
+ 
+     switch (c) {
+diff --git a/src/devicemanager.cpp b/src/devicemanager.cpp
+index 665d075..44fc749 100644
+--- a/src/devicemanager.cpp
++++ b/src/devicemanager.cpp
+@@ -203,7 +203,7 @@ void DeviceManager::updateDeviceList()
+ {
+     QList<DeviceInfo> newDeviceList;
+ 
+-    if (!LibVLC::self || !libvlc)
++    if (!LibVLC::self || !vlc_self)
+         return;
+ 
+     QList<QByteArray> audioOutBackends = vlcAudioOutBackends();
+@@ -252,7 +252,7 @@ void DeviceManager::updateDeviceList()
+         bool hasDevices = false;
+         VLC_FOREACH(audio_output_device,
+                     device,
+-                    libvlc_audio_output_device_list_get(libvlc, soundSystem),
++                    libvlc_audio_output_device_list_get(vlc_self, soundSystem),
+                     libvlc_audio_output_device_list_release) {
+             QString idName = QString::fromUtf8(device->psz_device);
+             QString longName = QString::fromUtf8(device->psz_description);
+@@ -275,11 +275,11 @@ void DeviceManager::updateDeviceList()
+             newDeviceList.append(info);
+         }
+ #else
+-        const int deviceCount = libvlc_audio_output_device_count(libvlc, soundSystem);
++        const int deviceCount = libvlc_audio_output_device_count(vlc_self, soundSystem);
+ 
+         for (int i = 0; i < deviceCount; i++) {
+-            VString idName(libvlc_audio_output_device_id(libvlc, soundSystem, i));
+-            VString longName(libvlc_audio_output_device_longname(libvlc, soundSystem, i));
++            VString idName(libvlc_audio_output_device_id(vlc_self, soundSystem, i));
++            VString longName(libvlc_audio_output_device_longname(vlc_self, soundSystem, i));
+ 
+             debug() << "found device" << soundSystem << idName << longName;
+ 
+diff --git a/src/effectmanager.cpp b/src/effectmanager.cpp
+index bec3eaa..7823ac2 100644
+--- a/src/effectmanager.cpp
++++ b/src/effectmanager.cpp
+@@ -46,7 +46,7 @@ EffectInfo::EffectInfo(const QString &name, const QString &description,
+ EffectManager::EffectManager(QObject *parent)
+     : QObject(parent)
+ {
+-    if (!libvlc)
++    if (!vlc_self)
+         return;
+ 
+     updateEffects();
+@@ -110,7 +110,7 @@ void EffectManager::updateEffects()
+ #endif
+ 
+ //    int moduleCount = -1;
+-//    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(libvlc)) {
++//    VLC_FOREACH_MODULE(module, libvlc_audio_filter_list_get(vlc_self)) {
+ //        m_audioEffectList.append(new EffectInfo(module->psz_longname,
+ //                                                module->psz_help,
+ //                                                QString(),
+@@ -119,7 +119,7 @@ void EffectManager::updateEffects()
+ //    }
+ 
+ //    moduleCount = -1;
+-//    VLC_FOREACH_MODULE(module, libvlc_video_filter_list_get(libvlc)) {
++//    VLC_FOREACH_MODULE(module, libvlc_video_filter_list_get(vlc_self)) {
+ //        m_videoEffectList.append(new EffectInfo(module->psz_longname,
+ //                                                module->psz_help,
+ //                                                QString(),
+diff --git a/src/media.cpp b/src/media.cpp
+index e047893..7b6ad65 100644
+--- a/src/media.cpp
++++ b/src/media.cpp
+@@ -30,7 +30,7 @@ namespace VLC {
+ 
+ Media::Media(const QByteArray &mrl, QObject *parent) :
+     QObject(parent),
+-    m_media(libvlc_media_new_location(libvlc, mrl.constData())),
++    m_media(libvlc_media_new_location(vlc_self, mrl.constData())),
+     m_mrl(mrl)
+ {
+     Q_ASSERT(m_media);
+diff --git a/src/mediaplayer.cpp b/src/mediaplayer.cpp
+index 691f072..89e2a81 100644
+--- a/src/mediaplayer.cpp
++++ b/src/mediaplayer.cpp
+@@ -50,7 +50,7 @@ namespace VLC {
+ MediaPlayer::MediaPlayer(QObject *parent)
+     : QObject(parent)
+     , m_media(0)
+-    , m_player(libvlc_media_player_new(libvlc))
++    , m_player(libvlc_media_player_new(vlc_self))
+     , m_doingPausedPlay(false)
+     , m_volume(75)
+     , m_fadeAmount(1.0f)
+diff --git a/src/utils/libvlc.h b/src/utils/libvlc.h
+index 6dcc96f..cf93e43 100644
+--- a/src/utils/libvlc.h
++++ b/src/utils/libvlc.h
+@@ -30,7 +30,7 @@ struct libvlc_instance_t;
+  * Please note that init() must have been called whenever using this, as no
+  * checking of self is conducted (i.e. can be null).
+  */
+-#define libvlc LibVLC::self->vlc()
++#define vlc_self LibVLC::self->vlc()
+ 
+ /**
+  * Foreach loop macro for VLC descriptions.
+@@ -50,7 +50,7 @@ struct libvlc_instance_t;
+ 
+ // This foreach expects only a type and variable because getter and releaser are generic.
+ // Also the type is in short form i.e. libvlc_foo_t would be foo.
+-#define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(libvlc), libvlc_##type##_list_release)
++#define VLC_FOREACH_LIST(type, variable) VLC_FOREACH(type, variable, libvlc_##type##_list_get(vlc_self), libvlc_##type##_list_release)
+ 
+ // These foreach expect no type because the type is generic, they do however
+ // expect a getter to allow usage with our wrapper classes and since the getter
+
+
