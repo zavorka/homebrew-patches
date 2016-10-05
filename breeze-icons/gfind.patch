@@ -1,0 +1,34 @@
+diff --git a/optimize-svg.sh b/optimize-svg.sh
+index a9d1507..32d579d 100644
+--- a/optimize-svg.sh
++++ b/optimize-svg.sh
+@@ -24,7 +24,7 @@ function evaluateOptimization {
+     fi
+ }
+ 
+-find . -name "*.svg" -size 4k -print0 | while IFS= read -r -d '' file
++gfind . -name "*.svg" -size 4k -print0 | while IFS= read -r -d '' file
+ do
+     echo "doing... $file"
+     generatePng "$file" /tmp/A.png
+@@ -33,7 +33,7 @@ do
+     evaluateOptimization /tmp/A.png /tmp/B.png "$file" "$file".tmp.svg
+ done
+ 
+-find . -name "*.svgz" -print0 | while IFS= read -r -d '' file
++gfind . -name "*.svgz" -print0 | while IFS= read -r -d '' file
+ do
+     echo "z-doing... $file"
+     generatePng "$file" /tmp/A.png
+diff --git a/validate_svg.sh b/validate_svg.sh
+index bbc3076..80186df 100644
+--- a/validate_svg.sh
++++ b/validate_svg.sh
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ 
+-find -name '*.svg' -exec xmllint --noout {} + 2> xmlerrors
++gfind -name '*.svg' -exec xmllint --noout {} + 2> xmlerrors
+ if [ -s xmlerrors ]; then
+     cat xmlerrors
+     rm xmlerrors
